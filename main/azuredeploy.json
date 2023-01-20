@@ -1,0 +1,589 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.13.1.58284",
+      "templateHash": "15048467194969928494"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "australiaeast",
+      "metadata": {
+        "description": "Target geographical location"
+      }
+    },
+    "logRgName": {
+      "type": "string",
+      "defaultValue": "rg-automation-aue",
+      "metadata": {
+        "description": "Target resource group"
+      }
+    },
+    "automationAccountName": {
+      "type": "string",
+      "defaultValue": "aa-vmstartstop-aue",
+      "metadata": {
+        "description": "Automation Account Name"
+      }
+    },
+    "subscriptionToEnable": {
+      "type": "string",
+      "defaultValue": "[subscription().subscriptionId]",
+      "metadata": {
+        "description": "Subscription ID to enable start stop permission"
+      }
+    },
+    "automationAccountSKU": {
+      "type": "string",
+      "defaultValue": "Basic",
+      "metadata": {
+        "description": "Automation Account SKU"
+      }
+    },
+    "automationAccountTags": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Automation Account Tags"
+      }
+    },
+    "runbooks": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "runbookName": "dev-vm-start-shutdown",
+          "runbookUri": "https://dckloudsadscmgmtaue001.blob.core.windows.net/aar-vmstartstop/aar-vmAutoStartStop.ps1",
+          "runbookType": "PowerShell",
+          "logProgress": false,
+          "logVerbose": false,
+          "scheduleName": "Start-VM-Schdule",
+          "advancedSchedule": null,
+          "description": "Start VM Schdule",
+          "expiryTime": "9999-12-31T23:59:59.9999999+00:00",
+          "frequency": "Hour",
+          "interval": 1,
+          "startTime": "[dateTimeAdd(utcNow(), 'PT1H')]",
+          "timeZone": "Australia/Sydney"
+        }
+      ],
+      "metadata": {
+        "runbookName": "Runbook name",
+        "runbookUri": "Runbook URI",
+        "runbookType": "Runbook type: Graph, Graph PowerShell, Graph PowerShellWorkflow, PowerShell, PowerShell Workflow, Script",
+        "logProgress": "Enable progress logs",
+        "logVerbose": "Enable verbose logs",
+        "description": "Runbooks to import into automation account"
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2021-04-01",
+      "name": "[parameters('logRgName')]",
+      "location": "[parameters('location')]"
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[replace(parameters('automationAccountName'), 'replace', 'dev-vmmgmt')]",
+      "resourceGroup": "[parameters('logRgName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "autoAccountName": {
+            "value": "[replace(parameters('automationAccountName'), 'replace', 'dev-vmmgmt')]"
+          },
+          "sku": {
+            "value": "[parameters('automationAccountSKU')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "tags": {
+            "value": "[parameters('automationAccountTags')]"
+          },
+          "runbooks": {
+            "value": "[parameters('runbooks')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.13.1.58284",
+              "templateHash": "17096666433350786865"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]",
+              "metadata": {
+                "description": "Location of the automation account"
+              }
+            },
+            "autoAccountName": {
+              "type": "string",
+              "metadata": {
+                "description": "Automation account name"
+              }
+            },
+            "sku": {
+              "type": "string",
+              "defaultValue": "Basic",
+              "allowedValues": [
+                "Free",
+                "Basic"
+              ],
+              "metadata": {
+                "description": "Automation account sku"
+              }
+            },
+            "modules": {
+              "type": "array",
+              "defaultValue": [],
+              "metadata": {
+                "name": "Module name",
+                "version": "Module version or specify latest to get the latest version",
+                "uri": "Module package uri, e.g. https://www.powershellgallery.com/api/v2/package",
+                "description": "Modules to import into automation account"
+              }
+            },
+            "runbooks": {
+              "type": "array",
+              "defaultValue": [],
+              "metadata": {
+                "runbookName": "Runbook name",
+                "runbookUri": "Runbook URI",
+                "runbookType": "Runbook type: Graph, Graph PowerShell, Graph PowerShellWorkflow, PowerShell, PowerShell Workflow, Script",
+                "logProgress": "Enable progress logs",
+                "logVerbose": "Enable verbose logs",
+                "scheduleName": "Runbook name",
+                "advancedSchedule": {},
+                "description": "Runbooks to import into automation account",
+                "expiryTime": "9999-12-31T23:59:59.9999999+00:00",
+                "frequency": "Enable verbose logs",
+                "interval": 1,
+                "startTime": "string",
+                "timeZone": "Australia/Sydney"
+              }
+            },
+            "tags": {
+              "type": "object",
+              "defaultValue": {},
+              "metadata": {
+                "description": "Object containing resource tags."
+              }
+            },
+            "enableResourceLock": {
+              "type": "bool",
+              "defaultValue": false,
+              "metadata": {
+                "description": "Enable a Can Not Delete Resource Lock.  Useful for production workloads."
+              }
+            },
+            "diagSettings": {
+              "type": "object",
+              "defaultValue": {},
+              "metadata": {
+                "name": "Diagnostic settings name",
+                "workspaceId": "Log analytics resource id",
+                "storageAccountId": "Storage account resource id",
+                "eventHubAuthorizationRuleId": "EventHub authorization rule id",
+                "eventHubName": "EventHub name",
+                "enableLogs": "Enable logs",
+                "enableMetrics": "Enable metrics",
+                "retentionPolicy": {
+                  "days": "Number of days to keep data",
+                  "enabled": "Enable retention policy"
+                },
+                "description": "Object containing diagnostics settings. If not provided diagnostics will not be set."
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Automation/automationAccounts",
+              "apiVersion": "2020-01-13-preview",
+              "name": "[parameters('autoAccountName')]",
+              "location": "[parameters('location')]",
+              "tags": "[if(not(empty(parameters('tags'))), parameters('tags'), json('null'))]",
+              "identity": {
+                "type": "SystemAssigned"
+              },
+              "properties": {
+                "sku": {
+                  "name": "[parameters('sku')]"
+                }
+              }
+            },
+            {
+              "copy": {
+                "name": "automationAccountModules",
+                "count": "[length(parameters('modules'))]",
+                "mode": "serial",
+                "batchSize": 1
+              },
+              "type": "Microsoft.Automation/automationAccounts/modules",
+              "apiVersion": "2020-01-13-preview",
+              "name": "[format('{0}/{1}', parameters('autoAccountName'), parameters('modules')[copyIndex()].name)]",
+              "properties": {
+                "contentLink": {
+                  "uri": "[if(equals(parameters('modules')[copyIndex()].version, 'latest'), format('{0}/{1}', parameters('modules')[copyIndex()].uri, parameters('modules')[copyIndex()].name), format('{0}/{1}/{2}', parameters('modules')[copyIndex()].uri, parameters('modules')[copyIndex()].name, parameters('modules')[copyIndex()].version))]",
+                  "version": "[if(equals(parameters('modules')[copyIndex()].version, 'latest'), null(), parameters('modules')[copyIndex()].version)]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('autoAccountName'))]"
+              ]
+            },
+            {
+              "copy": {
+                "name": "runbook",
+                "count": "[length(parameters('runbooks'))]"
+              },
+              "type": "Microsoft.Automation/automationAccounts/runbooks",
+              "apiVersion": "2019-06-01",
+              "name": "[format('{0}/{1}', parameters('autoAccountName'), parameters('runbooks')[copyIndex()].runbookName)]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "runbookType": "[parameters('runbooks')[copyIndex()].runbookType]",
+                "logProgress": "[parameters('runbooks')[copyIndex()].logProgress]",
+                "logVerbose": "[parameters('runbooks')[copyIndex()].logVerbose]",
+                "publishContentLink": {
+                  "uri": "[parameters('runbooks')[copyIndex()].runbookUri]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('autoAccountName'))]"
+              ]
+            },
+            {
+              "condition": "[not(empty(parameters('diagSettings')))]",
+              "type": "Microsoft.Insights/diagnosticSettings",
+              "apiVersion": "2017-05-01-preview",
+              "scope": "[format('Microsoft.Automation/automationAccounts/{0}', parameters('autoAccountName'))]",
+              "name": "[if(empty(parameters('diagSettings')), 'dummy-value', parameters('diagSettings').name)]",
+              "properties": {
+                "workspaceId": "[if(empty(parameters('diagSettings').workspaceId), json('null'), parameters('diagSettings').workspaceId)]",
+                "storageAccountId": "[if(empty(parameters('diagSettings').storageAccountId), json('null'), parameters('diagSettings').storageAccountId)]",
+                "eventHubAuthorizationRuleId": "[if(empty(parameters('diagSettings').eventHubAuthorizationRuleId), json('null'), parameters('diagSettings').eventHubAuthorizationRuleId)]",
+                "eventHubName": "[if(empty(parameters('diagSettings').eventHubName), json('null'), parameters('diagSettings').eventHubName)]",
+                "logs": [
+                  {
+                    "category": "JobLogs",
+                    "enabled": "[parameters('diagSettings').enableLogs]",
+                    "retentionPolicy": "[if(empty(parameters('diagSettings').retentionPolicy), json('null'), parameters('diagSettings').retentionPolicy)]"
+                  },
+                  {
+                    "category": "JobStreams",
+                    "enabled": "[parameters('diagSettings').enableLogs]",
+                    "retentionPolicy": "[if(empty(parameters('diagSettings').retentionPolicy), json('null'), parameters('diagSettings').retentionPolicy)]"
+                  },
+                  {
+                    "category": "DscNodeStatus",
+                    "enabled": "[parameters('diagSettings').enableLogs]",
+                    "retentionPolicy": "[if(empty(parameters('diagSettings').retentionPolicy), json('null'), parameters('diagSettings').retentionPolicy)]"
+                  }
+                ],
+                "metrics": [
+                  {
+                    "category": "AllMetrics",
+                    "enabled": "[parameters('diagSettings').enableMetrics]",
+                    "retentionPolicy": "[if(empty(parameters('diagSettings').retentionPolicy), json('null'), parameters('diagSettings').retentionPolicy)]"
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('autoAccountName'))]"
+              ]
+            },
+            {
+              "condition": "[parameters('enableResourceLock')]",
+              "type": "Microsoft.Authorization/locks",
+              "apiVersion": "2016-09-01",
+              "scope": "[format('Microsoft.Automation/automationAccounts/{0}', parameters('autoAccountName'))]",
+              "name": "[format('{0}-delete-lock', parameters('autoAccountName'))]",
+              "properties": {
+                "level": "CanNotDelete",
+                "notes": "Enabled as part of IaC Deployment"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('autoAccountName'))]"
+              ]
+            },
+            {
+              "copy": {
+                "name": "automationSchedules",
+                "count": "[length(parameters('runbooks'))]"
+              },
+              "type": "Microsoft.Automation/automationAccounts/schedules",
+              "apiVersion": "2022-08-08",
+              "name": "[format('{0}/{1}', parameters('autoAccountName'), parameters('runbooks')[copyIndex()].scheduleName)]",
+              "properties": {
+                "advancedSchedule": "[parameters('runbooks')[copyIndex()].advancedSchedule]",
+                "description": "[parameters('runbooks')[copyIndex()].description]",
+                "expiryTime": "[parameters('runbooks')[copyIndex()].expiryTime]",
+                "frequency": "[parameters('runbooks')[copyIndex()].frequency]",
+                "interval": "[parameters('runbooks')[copyIndex()].interval]",
+                "startTime": "[parameters('runbooks')[copyIndex()].startTime]",
+                "timeZone": "[parameters('runbooks')[copyIndex()].timeZone]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('autoAccountName'))]"
+              ]
+            },
+            {
+              "copy": {
+                "name": "jobSchdules",
+                "count": "[length(range(0, length(parameters('runbooks'))))]"
+              },
+              "type": "Microsoft.Automation/automationAccounts/jobSchedules",
+              "apiVersion": "2022-08-08",
+              "name": "[format('{0}/{1}', parameters('autoAccountName'), guid(parameters('runbooks')[range(0, length(parameters('runbooks')))[copyIndex()]].runbookName))]",
+              "properties": {
+                "parameters": {},
+                "runbook": {
+                  "name": "[parameters('runbooks')[range(0, length(parameters('runbooks')))[copyIndex()]].runbookName]"
+                },
+                "runOn": null,
+                "schedule": {
+                  "name": "[parameters('runbooks')[range(0, length(parameters('runbooks')))[copyIndex()]].scheduleName]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('autoAccountName'))]",
+                "automationSchedules",
+                "runbook"
+              ]
+            }
+          ],
+          "outputs": {
+            "name": {
+              "type": "string",
+              "value": "[parameters('autoAccountName')]"
+            },
+            "id": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Automation/automationAccounts', parameters('autoAccountName'))]"
+            },
+            "systemIdentityPrincipalId": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Automation/automationAccounts', parameters('autoAccountName')), '2020-01-13-preview', 'full').identity.principalId]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('logRgName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "Start-Stop-Custom-Role",
+      "subscriptionId": "[parameters('subscriptionToEnable')]",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "roleName": {
+            "value": "VM Maintanance"
+          },
+          "roleDescription": {
+            "value": "VM Start Stop Permission Role"
+          },
+          "actions": {
+            "value": [
+              "Microsoft.Compute/*/read",
+              "Microsoft.Compute/virtualMachines/start/action",
+              "Microsoft.Compute/virtualMachines/restart/action",
+              "Microsoft.Compute/virtualMachines/deallocate/action"
+            ]
+          },
+          "subscriptionId": {
+            "value": "[format('/subscriptions/{0}', parameters('subscriptionToEnable'))]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.13.1.58284",
+              "templateHash": "11565844330216210786"
+            }
+          },
+          "parameters": {
+            "actions": {
+              "type": "array",
+              "defaultValue": [
+                "Microsoft.Resources/subscriptions/resourceGroups/read"
+              ],
+              "metadata": {
+                "description": "Array of actions for the roleDefinition"
+              }
+            },
+            "notActions": {
+              "type": "array",
+              "defaultValue": [],
+              "metadata": {
+                "description": "Array of notActions for the roleDefinition"
+              }
+            },
+            "roleName": {
+              "type": "string",
+              "defaultValue": "Custom Role - RG Reader",
+              "metadata": {
+                "description": "Friendly name of the role definition"
+              }
+            },
+            "subscriptionId": {
+              "type": "string",
+              "metadata": {
+                "description": "Subscription Id to Assign"
+              }
+            },
+            "roleDescription": {
+              "type": "string",
+              "defaultValue": "Subscription Level Deployment of a Role Definition",
+              "metadata": {
+                "description": "Detailed description of the role definition"
+              }
+            }
+          },
+          "variables": {
+            "roleDefName": "[guid(subscription().id, string(parameters('actions')), string(parameters('notActions')))]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Authorization/roleDefinitions",
+              "apiVersion": "2022-04-01",
+              "name": "[variables('roleDefName')]",
+              "properties": {
+                "roleName": "[parameters('roleName')]",
+                "description": "[parameters('roleDescription')]",
+                "type": "customRole",
+                "permissions": [
+                  {
+                    "actions": "[parameters('actions')]",
+                    "notActions": "[parameters('notActions')]"
+                  }
+                ],
+                "assignableScopes": [
+                  "[parameters('subscriptionId')]"
+                ]
+              }
+            }
+          ],
+          "outputs": {
+            "roleDefId": {
+              "type": "string",
+              "value": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('roleDefName'))]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "Assign-Custom-Role",
+      "subscriptionId": "[parameters('subscriptionToEnable')]",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "builtinRole": {
+            "value": "Custom"
+          },
+          "name": {
+            "value": "Vm-Start-Stop"
+          },
+          "principalId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('logRgName')), 'Microsoft.Resources/deployments', replace(parameters('automationAccountName'), 'replace', 'dev-vmmgmt')), '2020-10-01').outputs.systemIdentityPrincipalId.value]"
+          },
+          "roleDefinitionId": {
+            "value": "[reference(subscriptionResourceId(parameters('subscriptionToEnable'), 'Microsoft.Resources/deployments', 'Start-Stop-Custom-Role'), '2020-10-01').outputs.roleDefId.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.13.1.58284",
+              "templateHash": "7587370815895680903"
+            }
+          },
+          "parameters": {
+            "name": {
+              "type": "string",
+              "metadata": {
+                "description": "Role assignment name"
+              }
+            },
+            "principalId": {
+              "type": "string",
+              "metadata": {
+                "description": "The principal id"
+              }
+            },
+            "builtinRole": {
+              "type": "string",
+              "allowedValues": [
+                "Owner",
+                "Contributor",
+                "Reader",
+                "Custom"
+              ],
+              "metadata": {
+                "description": "The built-in role for the role assignment"
+              }
+            },
+            "roleDefinitionId": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "Role definition id in format of \"/providers/Microsoft.Authorization/roleDefinitions/<id>\". Only required when built-in role is custom"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2020-04-01-preview",
+              "name": "[guid(parameters('name'))]",
+              "properties": {
+                "principalId": "[parameters('principalId')]",
+                "roleDefinitionId": "[if(equals(parameters('builtinRole'), 'Owner'), '/providers/Microsoft.Authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635', if(equals(parameters('builtinRole'), 'Contributor'), '/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c', if(equals(parameters('builtinRole'), 'Reader'), '/providers/Microsoft.Authorization/roleDefinitions/acdd72a7-3385-48ef-bd42-f606fba81ae7', parameters('roleDefinitionId'))))]"
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('logRgName')), 'Microsoft.Resources/deployments', replace(parameters('automationAccountName'), 'replace', 'dev-vmmgmt'))]",
+        "[subscriptionResourceId(parameters('subscriptionToEnable'), 'Microsoft.Resources/deployments', 'Start-Stop-Custom-Role')]"
+      ]
+    }
+  ]
+}
