@@ -1,7 +1,4 @@
-#Test Parameters
-# $TimeRange = '6AM-11PM'
-# $TimeRange = 'Friday'
-# $scheduledays = 'Monday,Tuesday,Wednesday,Thursday,Friday'
+
 $Simulate = $false
 
 Import-Module Az.Accounts
